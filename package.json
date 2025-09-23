@@ -1,0 +1,31 @@
+{
+  "name": "webinar-app",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-rate-limit": "^6.11.2",
+    "express-session": "^1.18.2",
+    "helmet": "^6.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.8.7",
+    "nodemailer": "^6.10.1",
+    "razorpay": "^2.9.6"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  },
+  "main": "server.js",
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
