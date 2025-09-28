@@ -244,3 +244,51 @@ export const sendBulkEmails = async (users, subject, message, filterType) => {
         return { success: false, error: error.message };
     }
 };
+
+export const sendFailureEmail = async (user) => {
+    try {
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: user.email,
+            subject: 'Payment Failed – Action Required',
+            html: `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>
+                        body { font-family: Arial, sans-serif; }
+                        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                        .header { background: #f44336; color: white; padding: 20px; text-align: center; }
+                        .content { padding: 20px; background: #f9f9f9; }
+                        .button { background: #4CAF50; color: white; padding: 15px 25px; text-decoration: none; border-radius: 5px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <h1>Payment Failed ❌</h1>
+                        </div>
+                        <div class="content">
+                            <h3>Dear ${user.name},</h3>
+                            <p>We attempted to process your payment but it failed.</p>
+                            <p>Please try again using the button below.</p>
+                            <p style="text-align:center;">
+                                <a href="${process.env.CLIENT_URL || 'http://localhost:3000'}/payment" class="button">
+                                    Retry Payment
+                                </a>
+                            </p>
+                            <br>
+                            <p>Best regards,<br><strong>Webinar Team</strong></p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `
+        };
+        await transporter.sendMail(mailOptions);
+        return true;
+    } catch (error) {
+        console.error('Failure email error:', error);
+        return false;
+    }
+};
