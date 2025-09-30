@@ -1,103 +1,294 @@
-import express from 'express';
-import { 
-    getAdminLogin, 
-    adminLogin, 
-    adminDashboard, 
-    getUsers, 
-    sendBulkEmail,
-    adminLogout,
-    getEmailForm
-} from '../controllers/adminController.js';
-import { requireAdminAuth } from '../middleware/adminAuth.js';
-
+const express = require('express');
 const router = express.Router();
+const Webinar = require('../models/Webinar');
+const User = require('../models/User');
+const Payment = require('../models/Payment');
+const { sendBulkEmail } = require('../utils/emailService');
 
-// Admin login routes
-router.get('/admin/login', getAdminLogin);
-router.post('/admin/login', adminLogin);
-router.get('/admin/logout', adminLogout);
+// Admin authentication middleware
+const authenticateAdmin = (req, res, next) => {
+    if (req.session.adminLoggedIn) {
+        next();
+    } else {
+        res.redirect('/admin/login');
+    }
+};
 
-// Protected admin routes
-router.get('/admin/dashboard', requireAdminAuth, adminDashboard);
-router.get('/admin/users', requireAdminAuth, getUsers);
-router.get('/admin/emails', requireAdminAuth, getEmailForm);
-router.post('/admin/send-bulk-email', requireAdminAuth, sendBulkEmail);
+// Admin login page
+router.get('/login', (req, res) => {
+    if (req.session.adminLoggedIn) {
+        return res.redirect('/admin/dashboard');
+    }
+    res.render('admin/login');
+});
 
-// Add these routes to your existing admin routes
-router.get('/admin/api/users/:id', requireAdminAuth, async (req, res) => {
-    try {
-        const user = await User.findById(req.params.id);
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        res.json(user);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch user' });
+// Admin login handler
+router.post('/login', (req, res) => {
+    const { username, password } = req.body;
+    
+    if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
+        req.session.adminLoggedIn = true;
+        res.redirect('/admin/dashboard');
+    } else {
+        res.render('admin/login', { error: 'Invalid credentials' });
     }
 });
 
-router.post('/admin/api/users/:id/remind', requireAdminAuth, async (req, res) => {
-    try {
-        const user = await User.findById(req.params.id);
-        if (!user) {
-            return res.status(404).json({ success: false, message: 'User not found' });
-        }
-
-        // Send payment reminder email
-        await sendPaymentReminderEmail(user);
-        
-        res.json({ success: true, message: 'Payment reminder sent successfully' });
-    } catch (error) {
-        res.status(500).json({ success: false, message: 'Failed to send reminder' });
-    }
+// Admin logout
+router.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/admin/login');
 });
 
-router.delete('/admin/api/users/:id', requireAdminAuth, async (req, res) => {
+// Admin dashboard
+router.get('/dashboard', authenticateAdmin, async (req, res) => {
     try {
-        const user = await User.findByIdAndDelete(req.params.id);
-        if (!user) {
-            return res.status(404).json({ success: false, message: 'User not found' });
-        }
+        const totalUsers = await User.countDocuments();
+        const totalWebinars = await Webinar.countDocuments({ isDeleted: false });
+        const totalRevenue = await Payment.aggregate([
+            { $match: { status: 'paid' } },
+            { $group: { _id: null, total: { $sum: '$amount' } } }
+        ]);
         
-        res.json({ success: true, message: 'User deleted successfully' });
-    } catch (error) {
-        res.status(500).json({ success: false, message: 'Failed to delete user' });
-    }
-});
+        const recentRegistrations = await User.find()
+            .populate('webinarId')
+            .sort({ createdAt: -1 })
+            .limit(10);
 
-router.get('/admin/api/users/export', requireAdminAuth, async (req, res) => {
-    try {
-        const { filter, search } = req.query;
-        let query = {};
-        
-        if (filter === 'paid') {
-            query.paymentStatus = 'completed';
-        } else if (filter === 'pending') {
-            query.paymentStatus = 'pending';
-        }
-        
-        if (search) {
-            query.$or = [
-                { name: { $regex: search, $options: 'i' } },
-                { email: { $regex: search, $options: 'i' } },
-                { phone: { $regex: search, $options: 'i' } }
-            ];
-        }
+        // Add safe data processing
+        const safeRegistrations = recentRegistrations.map(registration => ({
+            ...registration.toObject(),
+            webinarTitle: registration.webinarId ? registration.webinarId.title : 'Webinar Not Found',
+            webinarId: registration.webinarId ? registration.webinarId._id : null
+        }));
 
-        const users = await User.find(query).sort({ registeredAt: -1 });
-        
-        // Generate CSV
-        let csv = 'Name,Email,Phone,Payment Status,Amount,Registered At,Paid At\n';
-        users.forEach(user => {
-            csv += `"${user.name}","${user.email}","${user.phone}",${user.paymentStatus},${user.amount || 49},"${user.registeredAt}","${user.paidAt || ''}"\n`;
+        res.render('admin/dashboard', {
+            totalUsers,
+            totalWebinars,
+            totalRevenue: totalRevenue[0]?.total || 0,
+            recentRegistrations: safeRegistrations
         });
-        
-        res.setHeader('Content-Type', 'text/csv');
-        res.setHeader('Content-Disposition', 'attachment; filename=users.csv');
-        res.send(csv);
     } catch (error) {
-        res.status(500).json({ error: 'Failed to export users' });
+        res.status(500).render('admin/error', { error: 'Server error' });
     }
 });
 
-export default router;
+// Webinar management - only show non-deleted webinars
+router.get('/webinars', authenticateAdmin, async (req, res) => {
+    try {
+        const webinars = await Webinar.find({ isDeleted: false }).sort({ createdAt: -1 });
+        res.render('admin/webinars', { 
+            webinars,
+            success: req.query.success 
+        });
+    } catch (error) {
+        res.status(500).render('admin/error', { error: 'Server error' });
+    }
+});
+
+// Create webinar page
+router.get('/webinars/create', authenticateAdmin, (req, res) => {
+    res.render('admin/create-webinar');
+});
+
+// Create webinar handler
+router.post('/webinars', authenticateAdmin, async (req, res) => {
+    try {
+        console.log('Received webinar data:', req.body);
+        
+        // Validate required fields
+        const { title, description, date, time, duration, speaker, price } = req.body;
+        
+        if (!title || !description || !date || !time || !duration || !speaker || !price) {
+            return res.status(400).render('admin/error', { 
+                error: 'All required fields must be filled: title, description, date, time, duration, speaker, price' 
+            });
+        }
+
+        // Prepare webinar data with proper boolean handling
+        const webinarData = {
+            title: req.body.title,
+            description: req.body.description,
+            date: new Date(req.body.date),
+            time: req.body.time,
+            duration: req.body.duration,
+            speaker: req.body.speaker,
+            price: parseFloat(req.body.price),
+            maxParticipants: req.body.maxParticipants ? parseInt(req.body.maxParticipants) : null,
+            isActive: req.body.isActive === 'true',
+            isDeleted: false // Explicitly set to false for new webinars
+        };
+
+        console.log('Creating webinar with data:', webinarData);
+
+        const webinar = new Webinar(webinarData);
+        await webinar.save();
+        
+        console.log('Webinar created successfully:', webinar._id);
+        console.log('Webinar active status:', webinar.isActive);
+        res.redirect('/admin/webinars');
+        
+    } catch (error) {
+        console.error('Webinar creation error:', error);
+        res.status(500).render('admin/error', { 
+            error: `Failed to create webinar: ${error.message}` 
+        });
+    }
+});
+
+// Toggle webinar status
+router.get('/webinars/toggle-status/:id', authenticateAdmin, async (req, res) => {
+    try {
+        const webinarId = req.params.id;
+        console.log('Toggling status for webinar:', webinarId);
+        
+        const webinar = await Webinar.findOne({ _id: webinarId, isDeleted: false });
+        
+        if (!webinar) {
+            return res.status(404).render('admin/error', { error: 'Webinar not found' });
+        }
+
+        // Toggle the status
+        webinar.isActive = !webinar.isActive;
+        await webinar.save();
+
+        console.log('Webinar status updated:', webinar.title, 'is now', webinar.isActive ? 'Active' : 'Inactive');
+        res.redirect('/admin/webinars');
+        
+    } catch (error) {
+        console.error('Toggle status error:', error);
+        res.status(500).render('admin/error', { error: 'Failed to update webinar status: ' + error.message });
+    }
+});
+
+// Soft delete webinar
+router.get('/webinars/delete/:id', authenticateAdmin, async (req, res) => {
+    try {
+        const webinarId = req.params.id;
+        console.log('Soft deleting webinar:', webinarId);
+        
+        const webinar = await Webinar.findOne({ _id: webinarId, isDeleted: false });
+        
+        if (!webinar) {
+            return res.status(404).render('admin/error', { error: 'Webinar not found' });
+        }
+
+        // Mark as deleted instead of actually deleting
+        webinar.isDeleted = true;
+        webinar.isActive = false; // Also deactivate when deleting
+        webinar.deletedAt = new Date();
+        await webinar.save();
+
+        console.log('Webinar soft deleted:', webinar.title);
+        res.redirect('/admin/webinars?success=Webinar deleted successfully');
+        
+    } catch (error) {
+        console.error('Delete webinar error:', error);
+        res.status(500).render('admin/error', { error: 'Failed to delete webinar: ' + error.message });
+    }
+});
+
+// User management
+router.get('/users', authenticateAdmin, async (req, res) => {
+    try {
+        const { webinar, paymentStatus } = req.query;
+        let filter = {};
+        
+        if (webinar) filter.webinarId = webinar;
+        if (paymentStatus) filter.paymentStatus = paymentStatus;
+
+        const users = await User.find(filter)
+            .populate('webinarId')
+            .sort({ createdAt: -1 });
+
+        // Add safe data processing
+        const safeUsers = users.map(user => ({
+            ...user.toObject(),
+            webinarTitle: user.webinarId ? user.webinarId.title : 'Webinar Not Found',
+            webinarExists: !!user.webinarId
+        }));
+
+        const webinars = await Webinar.find({ isDeleted: false, isActive: true });
+        
+        res.render('admin/users', { 
+            users: safeUsers, 
+            webinars, 
+            filters: req.query 
+        });
+    } catch (error) {
+        res.status(500).render('admin/error', { error: 'Server error' });
+    }
+});
+
+// Bulk email page
+router.get('/bulk-email', authenticateAdmin, async (req, res) => {
+    try {
+        const webinars = await Webinar.find({ isDeleted: false, isActive: true });
+        res.render('admin/bulk-email', { 
+            webinars,
+            success: req.query.success 
+        });
+    } catch (error) {
+        res.status(500).render('admin/error', { error: 'Server error' });
+    }
+});
+
+// Send bulk email
+router.post('/send-bulk-email', authenticateAdmin, async (req, res) => {
+    try {
+        const { subject, message, webinarId, paymentStatus } = req.body;
+        
+        let filter = {};
+        if (webinarId) filter.webinarId = webinarId;
+        if (paymentStatus) filter.paymentStatus = paymentStatus;
+
+        const users = await User.find(filter).populate('webinarId');
+        
+        await sendBulkEmail(users, subject, message);
+        
+        res.redirect('/admin/bulk-email?success=true');
+    } catch (error) {
+        res.status(500).render('admin/error', { error: 'Failed to send emails' });
+    }
+});
+
+// Optional: Restore deleted webinars (if you want to add this feature later)
+router.get('/webinars/restore/:id', authenticateAdmin, async (req, res) => {
+    try {
+        const webinarId = req.params.id;
+        console.log('Restoring webinar:', webinarId);
+        
+        const webinar = await Webinar.findOne({ _id: webinarId, isDeleted: true });
+        
+        if (!webinar) {
+            return res.status(404).render('admin/error', { error: 'Deleted webinar not found' });
+        }
+
+        // Restore the webinar
+        webinar.isDeleted = false;
+        webinar.isActive = true;
+        webinar.deletedAt = null;
+        await webinar.save();
+
+        console.log('Webinar restored:', webinar.title);
+        res.redirect('/admin/webinars?success=Webinar restored successfully');
+        
+    } catch (error) {
+        console.error('Restore webinar error:', error);
+        res.status(500).render('admin/error', { error: 'Failed to restore webinar: ' + error.message });
+    }
+});
+
+// Optional: View deleted webinars (if you want to add this feature later)
+router.get('/webinars/deleted', authenticateAdmin, async (req, res) => {
+    try {
+        const deletedWebinars = await Webinar.find({ isDeleted: true }).sort({ deletedAt: -1 });
+        res.render('admin/deleted-webinars', { 
+            webinars: deletedWebinars 
+        });
+    } catch (error) {
+        res.status(500).render('admin/error', { error: 'Server error' });
+    }
+});
+
+module.exports = router;

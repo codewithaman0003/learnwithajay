@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const webinarSchema = new mongoose.Schema({
     title: {
@@ -10,30 +10,46 @@ const webinarSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    dateTime: {
+    date: {
         type: Date,
+        required: true
+    },
+    time: {
+        type: String,
+        required: true
+    },
+    duration: {
+        type: String,
+        required: true
+    },
+    speaker: {
+        type: String,
         required: true
     },
     price: {
         type: Number,
-        default: 49
+        required: true,
+        default: 0,
+        min: 0
     },
-    duration: {
-        type: String,
-        default: "60 minutes"
-    },
-    meetingLink: {
-        type: String,
-        default: "To be provided after payment"
+    maxParticipants: {
+        type: Number,
+        default: null
     },
     isActive: {
         type: Boolean,
         default: true
     },
-    createdAt: {
+    isDeleted: {
+        type: Boolean,
+        default: false
+    },
+    deletedAt: {
         type: Date,
-        default: Date.now
+        default: null
     }
+}, {
+    timestamps: true
 });
 
-export default mongoose.model('Webinar', webinarSchema);
+module.exports = mongoose.model('Webinar', webinarSchema);

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Webinar - WebinarPro Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+        }
+        .btn-primary {
+            background-color: #4f46e5;
+            color: white;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #4338ca;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Mobile menu button -->
+    <button class="md:hidden fixed top-4 left-4 z-50 bg-blue-600 text-white p-2 rounded-lg" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="sidebar w-64 bg-blue-800 text-white fixed h-full md:relative z-40">
+            <div class="p-4 border-b border-blue-700">
+                <h1 class="text-xl font-bold">WebinarPro Admin</h1>
+                <p class="text-blue-200 text-sm">Dashboard</p>
+            </div>
+            
+            <nav class="mt-6">
+                <a href="/admin/dashboard" class="flex items-center px-4 py-3 text-blue-100 hover:bg-blue-700">
+                    <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
+                </a>
+                <a href="/admin/webinars" class="flex items-center px-4 py-3 text-blue-100 hover:bg-blue-700 bg-blue-700">
+                    <i class="fas fa-video mr-3"></i>Webinars
+                </a>
+                <a href="/admin/users" class="flex items-center px-4 py-3 text-blue-100 hover:bg-blue-700">
+                    <i class="fas fa-users mr-3"></i>Users
+                </a>
+                <a href="/admin/bulk-email" class="flex items-center px-4 py-3 text-blue-100 hover:bg-blue-700">
+                    <i class="fas fa-envelope mr-3"></i>Bulk Email
+                </a>
+                <a href="/admin/logout" class="flex items-center px-4 py-3 text-blue-100 hover:bg-blue-700 mt-4">
+                    <i class="fas fa-sign-out-alt mr-3"></i>Logout
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main content -->
+        <div class="flex-1 flex flex-col overflow-hidden md:ml-0">
+            <!-- Top bar -->
+            <header class="bg-white shadow-sm z-30">
+                <div class="flex justify-between items-center p-4">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800">Create Webinar</h2>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-gray-600">Welcome, Admin</span>
+                        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page content -->
+            <main class="flex-1 overflow-y-auto p-6">
+                <div class="max-w-4xl mx-auto">
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h1 class="text-2xl font-bold text-gray-800 mb-6">Create New Webinar</h1>
+
+                        <form method="POST" action="/admin/webinars" class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-medium mb-2">Webinar Title</label>
+                                    <input type="text" name="title" required 
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        placeholder="Enter webinar title">
+                                </div>
+
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-medium mb-2">Speaker Name</label>
+                                    <input type="text" name="speaker" required 
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        placeholder="Enter speaker name">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-gray-700 text-sm font-medium mb-2">Description</label>
+                                <textarea name="description" rows="4" required
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="Enter webinar description"></textarea>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-medium mb-2">Date</label>
+                                    <input type="date" name="date" required 
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                </div>
+
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-medium mb-2">Time</label>
+                                    <input type="time" name="time" required 
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                </div>
+
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-medium mb-2">Duration</label>
+                                    <input type="text" name="duration" required 
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        placeholder="e.g., 2 hours">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-medium mb-2">Price (₹)</label>
+                                    <input type="number" name="price" required min="0" step="0.01"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        placeholder="0.00">
+                                </div>
+
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-medium mb-2">Max Participants</label>
+                                    <input type="number" name="maxParticipants" 
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        placeholder="Leave empty for unlimited">
+                                </div>
+                            </div>
+
+                            <div class="flex items-center">
+                                <input type="checkbox" name="isActive" id="isActive" checked
+                                    class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <label for="isActive" class="ml-2 text-gray-700 text-sm">Active (visible to users)</label>
+                            </div>
+
+                            <div class="flex space-x-4 pt-6">
+                                <button type="submit" class="btn-primary">
+                                    <i class="fas fa-save mr-2"></i>Create Webinar
+                                </button>
+                                <a href="/admin/webinars" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300">
+                                    Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

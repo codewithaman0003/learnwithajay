@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= webinar.title %> - WebinarPro</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        .btn-primary {
+            background-color: #4f46e5;
+            color: white;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #4338ca;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-lg">
+        <nav class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold text-blue-600">WebinarPro</a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="/" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
+                    <a href="/about" class="text-gray-700 hover:text-blue-600 font-medium">About</a>
+                    <a href="/webinars" class="text-gray-700 hover:text-blue-600 font-medium">Webinars</a>
+                    <a href="/portfolio" class="text-gray-700 hover:text-blue-600 font-medium">Portfolio</a>
+                    <a href="/contact" class="text-gray-700 hover:text-blue-600 font-medium">Contact</a>
+                    <a href="/admin/login" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Admin</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <section class="py-16 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="max-w-6xl mx-auto">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <!-- Webinar Details -->
+                        <div class="lg:col-span-2">
+                            <h1 class="text-4xl font-bold mb-4 text-gray-800"><%= webinar.title %></h1>
+                            <p class="text-gray-600 text-lg mb-6"><%= webinar.description %></p>
+                            
+                            <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                                <h3 class="text-xl font-semibold mb-4">Webinar Details</h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-calendar-alt text-blue-600 w-6"></i>
+                                        <span class="ml-3 text-gray-700"><strong>Date:</strong> <%= new Date(webinar.date).toLocaleDateString() %></span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-clock text-blue-600 w-6"></i>
+                                        <span class="ml-3 text-gray-700"><strong>Time:</strong> <%= webinar.time %></span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-hourglass text-blue-600 w-6"></i>
+                                        <span class="ml-3 text-gray-700"><strong>Duration:</strong> <%= webinar.duration %></span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-user text-blue-600 w-6"></i>
+                                        <span class="ml-3 text-gray-700"><strong>Speaker:</strong> <%= webinar.speaker %></span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-users text-blue-600 w-6"></i>
+                                        <span class="ml-3 text-gray-700"><strong>Max Participants:</strong> <%= webinar.maxParticipants %></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Registration Form -->
+                        <div class="lg:col-span-1">
+                            <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sticky top-6">
+                                <div class="text-center mb-6">
+                                    <div class="text-3xl font-bold text-blue-600 mb-2">₹<%= webinar.price %></div>
+                                    <div class="text-gray-600">One-time payment</div>
+                                </div>
+                                
+                                <form id="registrationForm" class="space-y-4">
+                                    <div>
+                                        <label class="block text-gray-700 text-sm font-medium mb-2">Full Name</label>
+                                        <input type="text" name="name" required 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-700 text-sm font-medium mb-2">Email Address</label>
+                                        <input type="email" name="email" required 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-700 text-sm font-medium mb-2">Phone Number</label>
+                                        <input type="tel" name="phone" required 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                    
+                                    <input type="hidden" name="webinarId" value="<%= webinar._id %>">
+                                    
+                                    <button type="submit" class="btn-primary w-full text-lg py-4">
+                                        <i class="fas fa-lock mr-2"></i>Register Securely
+                                    </button>
+                                </form>
+                                
+                                <div class="mt-4 text-center text-sm text-gray-500">
+                                    <i class="fas fa-shield-alt mr-1"></i>Secure payment powered by Razorpay
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2024 WebinarPro. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+    submitBtn.disabled = true;
+    
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData);
+    
+    try {
+        // Create order
+        const response = await fetch('/payment/create-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        
+        const order = await response.json();
+        
+        if (order.error) {
+            throw new Error(order.error);
+        }
+
+        // Show different message for existing registration
+        if (order.existingUser) {
+            submitBtn.innerHTML = '<i class="fas fa-redo mr-2"></i>Completing Registration...';
+        }
+        
+        // Razorpay checkout
+        const options = {
+            key: order.key,
+            amount: order.amount,
+            currency: order.currency,
+            name: "WebinarPro",
+            description: "Webinar Registration: <%= webinar.title %>",
+            order_id: order.orderId,
+            handler: async function (response) {
+                // Verify payment
+                const verifyResponse = await fetch('/payment/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_signature: response.razorpay_signature
+                    })
+                });
+                
+                const result = await verifyResponse.json();
+                if (result.success) {
+                    window.location.href = `/payment/success?payment_id=${response.razorpay_payment_id}`;
+                } else {
+                    alert('Payment verification failed. Please contact support.');
+                }
+            },
+            prefill: {
+                name: data.name,
+                email: data.email,
+                contact: data.phone
+            },
+            theme: {
+                color: "#4f46e5"
+            },
+            modal: {
+                ondismiss: function() {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            }
+        };
+        
+        const rzp = new Razorpay(options);
+        rzp.open();
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Registration failed: ' + error.message);
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }
+});
+    </script>
+</body>
+</html>

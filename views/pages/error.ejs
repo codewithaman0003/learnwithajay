@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - WebinarPro</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        .btn-primary {
+            background-color: #4f46e5;
+            color: white;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #4338ca;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-lg">
+        <nav class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold text-blue-600">WebinarPro</a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="/" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
+                    <a href="/about" class="text-gray-700 hover:text-blue-600 font-medium">About</a>
+                    <a href="/webinars" class="text-gray-700 hover:text-blue-600 font-medium">Webinars</a>
+                    <a href="/portfolio" class="text-gray-700 hover:text-blue-600 font-medium">Portfolio</a>
+                    <a href="/contact" class="text-gray-700 hover:text-blue-600 font-medium">Contact</a>
+                    <a href="/admin/login" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Admin</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <section class="py-16 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="max-w-2xl mx-auto text-center">
+                    <div class="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-exclamation-triangle text-red-500 text-3xl"></i>
+                    </div>
+                    
+                    <h1 class="text-4xl font-bold text-gray-800 mb-4">Oops! Something Went Wrong</h1>
+                    
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-8">
+                        <h3 class="text-lg font-semibold text-red-800 mb-2">Error Details:</h3>
+                        <p class="text-red-700">
+                            <% if (typeof error !== 'undefined') { %>
+                                <%= error %>
+                            <% } else { %>
+                                An unexpected error occurred. Please try again later.
+                            <% } %>
+                        </p>
+                    </div>
+                    
+                    <p class="text-gray-600 mb-8">
+                        We apologize for the inconvenience. Please try the following:
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <i class="fas fa-sync-alt text-blue-500 text-xl mb-2"></i>
+                            <h4 class="font-semibold text-blue-800">Refresh the Page</h4>
+                            <p class="text-blue-600 text-sm">Try reloading the page</p>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-lg">
+                            <i class="fas fa-home text-green-500 text-xl mb-2"></i>
+                            <h4 class="font-semibold text-green-800">Go to Homepage</h4>
+                            <p class="text-green-600 text-sm">Navigate back to safety</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <a href="/" class="btn-primary inline-block">
+                            <i class="fas fa-home mr-2"></i>Back to Homepage
+                        </a>
+                        <br>
+                        <a href="/contact" class="text-blue-600 hover:text-blue-700 font-medium">
+                            <i class="fas fa-envelope mr-2"></i>Contact Support
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2024 WebinarPro. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

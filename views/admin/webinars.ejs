@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webinar Management - WebinarPro Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+        }
+        .btn-primary {
+            background-color: #4f46e5;
+            color: white;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #4338ca;
+            transform: scale(1.05);
+        }
+        /* Delete confirmation modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Mobile menu button -->
+    <button class="md:hidden fixed top-4 left-4 z-50 bg-blue-600 text-white p-2 rounded-lg" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Delete Webinar</h3>
+                <p class="text-gray-600 mb-6" id="deleteModalText">Are you sure you want to delete this webinar? This action cannot be undone.</p>
+                <div class="flex space-x-4 justify-center">
+                    <button onclick="closeDeleteModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300">
+                        Cancel
+                    </button>
+                    <button onclick="confirmDelete()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="sidebar w-64 bg-blue-800 text-white fixed h-full md:relative z-40">
+            <div class="p-4 border-b border-blue-700">
+                <h1 class="text-xl font-bold">WebinarPro Admin</h1>
+                <p class="text-blue-200 text-sm">Dashboard</p>
+            </div>
+            
+            <nav class="mt-6">
+                <a href="/admin/dashboard" class="flex items-center px-4 py-3 text-blue-100 hover:bg-blue-700">
+                    <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
+                </a>
+                <a href="/admin/webinars" class="flex items-center px-4 py-3 text-blue-100 hover:bg-blue-700 bg-blue-700">
+                    <i class="fas fa-video mr-3"></i>Webinars
+                </a>
+                <a href="/admin/users" class="flex items-center px-4 py-3 text-blue-100 hover:bg-blue-700">
+                    <i class="fas fa-users mr-3"></i>Users
+                </a>
+                <a href="/admin/bulk-email" class="flex items-center px-4 py-3 text-blue-100 hover:bg-blue-700">
+                    <i class="fas fa-envelope mr-3"></i>Bulk Email
+                </a>
+                <a href="/admin/logout" class="flex items-center px-4 py-3 text-blue-100 hover:bg-blue-700 mt-4">
+                    <i class="fas fa-sign-out-alt mr-3"></i>Logout
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main content -->
+        <div class="flex-1 flex flex-col overflow-hidden md:ml-0">
+            <!-- Top bar -->
+            <header class="bg-white shadow-sm z-30">
+                <div class="flex justify-between items-center p-4">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800">Webinar Management</h2>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-gray-600">Welcome, Admin</span>
+                        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page content -->
+            <main class="flex-1 overflow-y-auto p-6">
+                <div class="space-y-6">
+                    <!-- Header -->
+                    <div class="flex justify-between items-center">
+                        <h1 class="text-2xl font-bold text-gray-800">Webinar Management</h1>
+                        <a href="/admin/webinars/create" class="btn-primary">
+                            <i class="fas fa-plus mr-2"></i>Create Webinar
+                        </a>
+                    </div>
+
+                    <!-- Success Message -->
+                    <% if (typeof success !== 'undefined' && success) { %>
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                            <span class="text-green-700"><%= success %></span>
+                        </div>
+                    </div>
+                    <% } %>
+
+                    <!-- Webinars List -->
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-200">
+                                    <th class="text-left py-4 px-6 text-gray-600 font-medium">Title</th>
+                                    <th class="text-left py-4 px-6 text-gray-600 font-medium">Date</th>
+                                    <th class="text-left py-4 px-6 text-gray-600 font-medium">Price</th>
+                                    <th class="text-left py-4 px-6 text-gray-600 font-medium">Speaker</th>
+                                    <th class="text-left py-4 px-6 text-gray-600 font-medium">Status</th>
+                                    <th class="text-left py-4 px-6 text-gray-600 font-medium">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (typeof webinars !== 'undefined' && webinars.length > 0) { %>
+                                    <% webinars.forEach(webinar => { %>
+                                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                        <td class="py-4 px-6">
+                                            <div>
+                                                <p class="font-medium text-gray-800"><%= webinar.title %></p>
+                                                <p class="text-sm text-gray-600 truncate max-w-xs"><%= webinar.description.substring(0, 60) %>...</p>
+                                            </div>
+                                        </td>
+                                        <td class="py-4 px-6 text-gray-600">
+                                            <%= new Date(webinar.date).toLocaleDateString() %>
+                                        </td>
+                                        <td class="py-4 px-6">
+                                            <span class="font-medium text-gray-800">₹<%= webinar.price %></span>
+                                        </td>
+                                        <td class="py-4 px-6 text-gray-600">
+                                            <%= webinar.speaker %>
+                                        </td>
+                                        <td class="py-4 px-6">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= webinar.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' %>">
+                                                <%= webinar.isActive ? 'Active' : 'Inactive' %>
+                                            </span>
+                                        </td>
+                                        <td class="py-4 px-6">
+                                            <div class="flex space-x-2">
+                                                <a href="/webinar/<%= webinar._id %>" target="_blank" 
+                                                    class="text-blue-600 hover:text-blue-700 p-1" title="View">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="/admin/webinars/toggle-status/<%= webinar._id %>" 
+                                                    class="<%= webinar.isActive ? 'text-yellow-600 hover:text-yellow-700' : 'text-green-600 hover:text-green-700' %> p-1" 
+                                                    title="<%= webinar.isActive ? 'Deactivate' : 'Activate' %>">
+                                                    <i class="fas <%= webinar.isActive ? 'fa-pause' : 'fa-play' %>"></i>
+                                                </a>
+                                                <button onclick="openDeleteModal('<%= webinar._id %>', '<%= webinar.title %>')" 
+                                                    class="text-red-600 hover:text-red-700 p-1" 
+                                                    title="Delete Webinar">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="6" class="py-12 text-center">
+                                            <i class="fas fa-video text-4xl text-gray-300 mb-3"></i>
+                                            <p class="text-gray-500">No webinars created yet</p>
+                                            <a href="/admin/webinars/create" class="btn-primary mt-4 inline-block">Create Your First Webinar</a>
+                                        </td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        let webinarToDelete = null;
+        
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        }
+
+        // Delete modal functions
+        function openDeleteModal(webinarId, webinarTitle) {
+            webinarToDelete = webinarId;
+            document.getElementById('deleteModalText').textContent = `Are you sure you want to delete "${webinarTitle}"? This action cannot be undone.`;
+            document.getElementById('deleteModal').style.display = 'block';
+        }
+
+        function closeDeleteModal() {
+            webinarToDelete = null;
+            document.getElementById('deleteModal').style.display = 'none';
+        }
+
+        function confirmDelete() {
+            if (webinarToDelete) {
+                window.location.href = `/admin/webinars/delete/${webinarToDelete}`;
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('deleteModal');
+            if (event.target === modal) {
+                closeDeleteModal();
+            }
+        }
+    </script>
+</body>
+</html>

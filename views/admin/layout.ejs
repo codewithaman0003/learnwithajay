@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head', {
+        title: title + ' - Admin Dashboard',
+        baseUrl: baseUrl,
+        includeCharts: currentPage === 'dashboard',
+        includeAlpine: true
+    }) %>
+    <style>
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+        }
+        .font-inter {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-inter">
+    <!-- Mobile menu button -->
+    <button class="md:hidden fixed top-4 left-4 z-50 bg-blue-600 text-white p-2 rounded-lg" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="sidebar w-64 bg-blue-800 text-white fixed h-full md:relative z-40">
+            <div class="p-4 border-b border-blue-700">
+                <h1 class="text-xl font-bold">WebinarPro Admin</h1>
+                <p class="text-blue-200 text-sm">Dashboard</p>
+            </div>
+            
+            <nav class="mt-6">
+                <a href="/admin/dashboard" class="flex items-center px-4 py-3 text-blue-100 hover:bg-blue-700 <%= currentPage === 'dashboard' ? 'bg-blue-700' : '' %>">
+                    <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
+                </a>
+                <a href="/admin/webinars" class="flex items-center px-4 py-3 text-blue-100 hover:bg-blue-700 <%= currentPage === 'webinars' ? 'bg-blue-700' : '' %>">
+                    <i class="fas fa-video mr-3"></i>Webinars
+                </a>
+                <a href="/admin/users" class="flex items-center px-4 py-3 text-blue-100 hover:bg-blue-700 <%= currentPage === 'users' ? 'bg-blue-700' : '' %>">
+                    <i class="fas fa-users mr-3"></i>Users
+                </a>
+                <a href="/admin/bulk-email" class="flex items-center px-4 py-3 text-blue-100 hover:bg-blue-700 <%= currentPage === 'email' ? 'bg-blue-700' : '' %>">
+                    <i class="fas fa-envelope mr-3"></i>Bulk Email
+                </a>
+                <a href="/admin/logout" class="flex items-center px-4 py-3 text-blue-100 hover:bg-blue-700 mt-4">
+                    <i class="fas fa-sign-out-alt mr-3"></i>Logout
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main content -->
+        <div class="flex-1 flex flex-col overflow-hidden md:ml-0">
+            <!-- Top bar -->
+            <header class="bg-white shadow-sm z-30">
+                <div class="flex justify-between items-center p-4">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800"><%= title || 'Dashboard' %></h2>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-gray-600">Welcome, Admin</span>
+                        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page content -->
+            <main class="flex-1 overflow-y-auto p-6">
+                <%- body %>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

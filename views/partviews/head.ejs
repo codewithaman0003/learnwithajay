@@ -1,0 +1,72 @@
+<%
+// Set default values if variables are not provided
+const pageTitle = typeof title !== 'undefined' ? title : 'WebinarPro - Learn from Experts';
+const pageBaseUrl = typeof baseUrl !== 'undefined' ? baseUrl : 'http://localhost:3000';
+const pageCanonicalUrl = typeof canonicalUrl !== 'undefined' ? canonicalUrl : pageBaseUrl;
+const shouldIncludeRazorpay = typeof includeRazorpay !== 'undefined' ? includeRazorpay : false;
+const shouldIncludeCharts = typeof includeCharts !== 'undefined' ? includeCharts : false;
+const shouldIncludeAlpine = typeof includeAlpine !== 'undefined' ? includeAlpine : false;
+%>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= pageTitle %></title>
+<meta name="description" content="Join interactive webinars led by industry experts. Learn, grow, and transform your career with WebinarPro.">
+<meta name="keywords" content="webinars, online learning, courses, education, workshops, training">
+
+<!-- Open Graph Meta Tags -->
+<meta property="og:title" content="<%= pageTitle %>">
+<meta property="og:description" content="Join interactive webinars led by industry experts. Learn, grow, and transform your career with WebinarPro.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="<%= pageBaseUrl %>">
+<meta property="og:image" content="<%= pageBaseUrl %>/images/og-image.jpg">
+
+<!-- Twitter Card Meta Tags -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="<%= pageTitle %>">
+<meta name="twitter:description" content="Join interactive webinars led by industry experts. Learn, grow, and transform your career with WebinarPro.">
+<meta name="twitter:image" content="<%= pageBaseUrl %>/images/twitter-image.jpg">
+
+<!-- Favicon -->
+<link rel="icon" type="image/x-icon" href="<%= pageBaseUrl %>/images/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="<%= pageBaseUrl %>/images/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="<%= pageBaseUrl %>/images/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="<%= pageBaseUrl %>/images/favicon-16x16.png">
+
+<!-- CSS Libraries -->
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Custom CSS -->
+<link href="<%= pageBaseUrl %>/css/style.css" rel="stylesheet">
+
+<!-- Preload Critical Resources -->
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style">
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style">
+
+<!-- Canonical URL -->
+<link rel="canonical" href="<%= pageCanonicalUrl %>">
+
+<!-- Theme Color -->
+<meta name="theme-color" content="#4f46e5">
+
+<!-- Additional Meta Tags -->
+<meta name="robots" content="index, follow">
+<meta name="author" content="WebinarPro">
+<meta name="language" content="English">
+
+<!-- Razorpay Script (for payment pages) -->
+<% if (shouldIncludeRazorpay) { %>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<% } %>
+
+<!-- Chart.js (for admin dashboard) -->
+<% if (shouldIncludeCharts) { %>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<% } %>
+
+<!-- Alpine.js (for interactive components) -->
+<% if (shouldIncludeAlpine) { %>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.12.0/cdn.min.js" defer></script>
+<% } %>
