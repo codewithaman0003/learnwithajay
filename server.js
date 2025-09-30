@@ -3,7 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const path = require('path');
-const serverless = require('serverless-http'); // npm i serverless-http
+const serverless = require('serverless-http');
 
 const app = express();
 
@@ -28,21 +28,43 @@ app.use((req, res, next) => {
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Database connection
-mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => console.log("MongoDB connected"))
-  .catch(err => console.error("MongoDB connection error:", err));
+// ✅ Cached MongoDB connection
+let cached = global.mongoose;
+if (!cached) {
+    cached = global.mongoose = { conn: null, promise: null };
+}
 
-// Routes
+async function connectDB() {
+    if (cached.conn) return cached.conn;
+
+    if (!cached.promise) {
+        cached.promise = mongoose.connect(process.env.MONGODB_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 5000, // fail fast if unreachable
+            socketTimeoutMS: 45000,        // keep alive longer
+        }).then((mongoose) => mongoose);
+    }
+
+    cached.conn = await cached.promise;
+    return cached.conn;
+}
+
+// Routes (connect DB before handling)
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (err) {
+        console.error("MongoDB connection error:", err);
+        res.status(500).send("Database connection error");
+    }
+});
+
 app.use('/', require('./routes/index'));
 app.use('/admin', require('./routes/admin'));
 app.use('/payment', require('./routes/payment'));
 
-// ❌ Remove app.listen() for Vercel
-// const PORT = process.env.PORT || 3000;
-// app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
+// ❌ No app.listen() on Vercel
 module.exports = app;
-module.exports.handler = serverless(app);  // ✅ Export handler for Vercel
+module.exports.handler = serverless(app);
