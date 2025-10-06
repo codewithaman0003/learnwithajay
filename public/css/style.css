@@ -18,7 +18,7 @@ body {
     color: #374151;
 }
 .navbar{
-    background: red;
+    background-color: red;
 }
 /* Loading Spinner */
 .loading-spinner {
