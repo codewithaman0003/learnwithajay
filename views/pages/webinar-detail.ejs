@@ -7,7 +7,6 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="/css/style.css" rel="stylesheet">
-    <link href="/css/styles.css" rel="stylesheet">
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <style>
         .btn-primary {
@@ -30,7 +29,7 @@
         <nav class="container mx-auto px-6 py-4">
             <div class="flex justify-between items-center">
                 <div class="flex items-center">
-                    <a href="/" class="text-2xl font-bold text-blue-600">Join Webinar</a>
+                    <a href="/" class="text-2xl font-bold text-blue-600">WebinarPro</a>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="/" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
@@ -38,6 +37,7 @@
                     <a href="/webinars" class="text-gray-700 hover:text-blue-600 font-medium">Webinars</a>
                     <a href="/portfolio" class="text-gray-700 hover:text-blue-600 font-medium">Portfolio</a>
                     <a href="/contact" class="text-gray-700 hover:text-blue-600 font-medium">Contact</a>
+                    <a href="/admin/login" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Admin</a>
                 </div>
             </div>
         </nav>
@@ -47,12 +47,13 @@
     <main>
         <section class="py-16 bg-white">
             <div class="container mx-auto px-6">
-
+                <div class="max-w-6xl mx-auto">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <!-- Webinar Details -->
                         <div class="lg:col-span-2">
                             <h1 class="text-4xl font-bold mb-4 text-gray-800"><%= webinar.title %></h1>
                             <p class="text-gray-600 text-lg mb-6"><%= webinar.description %></p>
-
+                            
                             <div class="bg-gray-50 rounded-lg p-6 mb-6">
                                 <h3 class="text-xl font-semibold mb-4">Webinar Details</h3>
                                 <div class="space-y-3">
@@ -126,142 +127,96 @@
     </main>
 
     <!-- Footer -->
-        <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <div class="nav-brand">
-                        <div class="brand-logo">A</div>
-                        <span class="brand-name">Ajay</span>
-                    </div>
-                    <p>Digital Marketing Expert specializing in AI-powered strategies and Meta Ads optimization.</p>
-                </div>
-                
-                <div class="footer-links">
-                    <h4>Quick Links</h4>
-                    <a href="/">Home</a>
-                    <a href="/about">About</a>
-                    <a href="/webinars">Webinar</a>
-                    <a href="/portfolio">Portfolio</a>
-                    <a href="/contact">Contact</a>
-                </div>
-
-                <div class="footer-contact">
-                    <h4>Contact Info</h4>
-                    <div style="display: flex; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.75rem;">
-                        <i class="fas fa-map-marker-alt" style="color: var(--primary-color); width: 16px; margin-top: 2px;"></i>
-                        <div>
-                            <div style="font-size: 0.875rem; line-height: 1.4;">Dhamtan Sahib</div>
-                            <div style="font-size: 0.875rem; line-height: 1.4;">Jind</div>
-                            <div style="font-size: 0.875rem; line-height: 1.4;">Haryana</div>
-                        </div>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
-                        <i class="fas fa-envelope" style="color: var(--primary-color); width: 16px;"></i>
-                        <a href="mailto:learnwithajay001@gamil.com" style="font-size: 0.875rem; color: inherit; text-decoration: none;">learnwithajay001@gmail.com</a>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
-                        <i class="fas fa-phone" style="color: var(--primary-color); width: 16px;"></i>
-                        <a href="tel:+918950790157" style="font-size: 0.875rem; color: inherit; text-decoration: none;">+91 895 079 0157</a>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <i class="fas fa-clock" style="color: var(--primary-color); width: 16px;"></i>
-                        <span style="font-size: 0.875rem;">Mon-Fri 9AM-6PM EST</span>
-                    </div>
-                </div>
-
-                <div class="footer-social">
-                    <h4>Follow Me</h4>
-                    <div class="social-links">
-                        <a href="https://www.facebook.com/share/1BQfWa2zwX/" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-                        <a href="https://www.facebook.com/share/1BQfWa2zwX/" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                        <a href="https://www.instagram.com/startwithajay?igsh=eTh2eDRhYzg2cjYz&utm_source=qr" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="footer-bottom">
-                <p>&copy; 2025 Ajay. All rights reserved. Built with passion for digital excellence.</p>
-            </div>
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2024 WebinarPro. All rights reserved.</p>
         </div>
     </footer>
 
     <script>
         document.getElementById('registrationForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
-            submitBtn.disabled = true;
-            
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData);
-            
-            try {
-                const response = await fetch('/payment/create-order', {
+    e.preventDefault();
+    
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+    submitBtn.disabled = true;
+    
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData);
+    
+    try {
+        // Create order
+        const response = await fetch('/payment/create-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        
+        const order = await response.json();
+        
+        if (order.error) {
+            throw new Error(order.error);
+        }
+
+        // Show different message for existing registration
+        if (order.existingUser) {
+            submitBtn.innerHTML = '<i class="fas fa-redo mr-2"></i>Completing Registration...';
+        }
+        
+        // Razorpay checkout
+        const options = {
+            key: order.key,
+            amount: order.amount,
+            currency: order.currency,
+            name: "WebinarPro",
+            description: "Webinar Registration: <%= webinar.title %>",
+            order_id: order.orderId,
+            handler: async function (response) {
+                // Verify payment
+                const verifyResponse = await fetch('/payment/verify', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
+                    body: JSON.stringify({
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_signature: response.razorpay_signature
+                    })
                 });
                 
-                const order = await response.json();
-                if (order.error) throw new Error(order.error);
-
-                if (order.existingUser) {
-                    submitBtn.innerHTML = '<i class="fas fa-redo mr-2"></i>Completing Registration...';
+                const result = await verifyResponse.json();
+                if (result.success) {
+                    window.location.href = `/payment/success?payment_id=${response.razorpay_payment_id}`;
+                } else {
+                    alert('Payment verification failed. Please contact support.');
                 }
-                
-                const options = {
-                    key: order.key,
-                    amount: order.amount,
-                    currency: order.currency,
-                    name: "WebinarPro",
-                    description: "Webinar Registration: <%= webinar.title %>",
-                    order_id: order.orderId,
-                    handler: async function (response) {
-                        const verifyResponse = await fetch('/payment/verify', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                razorpay_order_id: response.razorpay_order_id,
-                                razorpay_payment_id: response.razorpay_payment_id,
-                                razorpay_signature: response.razorpay_signature
-                            })
-                        });
-                        
-                        const result = await verifyResponse.json();
-                        if (result.success) {
-                            window.location.href = `/payment/success?payment_id=${response.razorpay_payment_id}`;
-                        } else {
-                            alert('Payment verification failed. Please contact support.');
-                        }
-                    },
-                    prefill: {
-                        name: data.name,
-                        email: data.email,
-                        contact: data.phone
-                    },
-                    theme: { color: "#4f46e5" },
-                    modal: {
-                        ondismiss: function() {
-                            submitBtn.innerHTML = originalText;
-                            submitBtn.disabled = false;
-                        }
-                    }
-                };
-                
-                const rzp = new Razorpay(options);
-                rzp.open();
-                
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Registration failed: ' + error.message);
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
+            },
+            prefill: {
+                name: data.name,
+                email: data.email,
+                contact: data.phone
+            },
+            theme: {
+                color: "#4f46e5"
+            },
+            modal: {
+                ondismiss: function() {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
             }
-        });
+        };
+        
+        const rzp = new Razorpay(options);
+        rzp.open();
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Registration failed: ' + error.message);
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }
+});
     </script>
 </body>
 </html>
