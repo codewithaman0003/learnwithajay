@@ -39,13 +39,23 @@ src="https://www.facebook.com/tr?id=1547479869769013&ev=PageView&noscript=1"
             background-color: #4338ca;
             transform: scale(1.05);
         }
+
+        /* Blur background when modal is active */
+        body.modal-active main,
+        body.modal-active nav,
+        body.modal-active footer {
+            filter: blur(6px);
+            pointer-events: none;
+            user-select: none;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
+
     <!-- Header -->
-        <nav class="navbar">
+    <nav class="navbar">
         <div class="nav-container">
-                <div class="nav-brand">
+            <div class="nav-brand">
                 <div class="brand-logo">A</div>
                 <span class="brand-name">Ajay</span>
             </div>
@@ -70,8 +80,6 @@ src="https://www.facebook.com/tr?id=1547479869769013&ev=PageView&noscript=1"
         </div>
     </nav>
 
-
-
     <!-- Main Content -->
     <main>
         <section class="py-16 bg-white">
@@ -83,55 +91,7 @@ src="https://www.facebook.com/tr?id=1547479869769013&ev=PageView&noscript=1"
                             <h1 class="text-4xl font-bold mb-4 text-gray-800"><%= webinar.title %></h1>
                             <p class="text-gray-600 text-lg mb-6"><%= webinar.description %></p>
 
-<div class="bg-gray-50 rounded-lg mb-6">
-<iframe width="100%" height="315" src="https://www.youtube.com/embed/Nb_l4QL7JCo?autoplay=1&mute=0&controls=0&modestbranding=1&rel=0&showinfo=0&loop=1&playlist=Nb_l4QL7JCo&playsinline=1" title="Learn With Ajay" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture;" allowfullscreen></iframe>
-</div>
-
-
-                        <!-- Registration Form -->
-                        <div class="lg:col-span-1">
-                            <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sticky top-6">
-                                <div class="text-center mb-6">
-                                    <div class="text-3xl font-bold text-blue-600 mb-2">Join Now</div>
-                                    <div class="text-gray-600">One-time payment</div>
-                                </div>
-                                
-                                <form id="registrationForm" class="space-y-4">
-                                    <div>
-                                        <label class="block text-gray-700 text-sm font-medium mb-2">Full Name</label>
-                                        <input type="text" name="name" required 
-                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-gray-700 text-sm font-medium mb-2">Email Address</label>
-                                        <input type="email" name="email" required 
-                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-gray-700 text-sm font-medium mb-2">Phone Number</label>
-                                        <input type="tel" name="phone" required 
-                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                    </div>
-                                    
-                                    <input type="hidden" name="webinarId" value="<%= webinar._id %>">
-                                    
-                                    <button type="submit" class="btn-primary w-full text-lg py-4">
-                                        <i class="fas fa-lock mr-2"></i>Register Securely
-                                    </button>
-                                </form>
-                                
-                                <div class="mt-4 text-center text-sm text-gray-500">
-                                    <i class="fas fa-shield-alt mr-1"></i>Secure payment powered by Razorpay
-                                </div>
-                            </div>
-                        </div>
-
-
-
-
-
+                            
                             <div class="bg-gray-50 rounded-lg p-6 mb-6">
                                 <h3 class="text-xl font-semibold mb-4">Webinar Details</h3>
                                 <div class="space-y-3">
@@ -166,7 +126,6 @@ src="https://www.facebook.com/tr?id=1547479869769013&ev=PageView&noscript=1"
     </main>
 
     <!-- Footer -->
-        <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
@@ -227,91 +186,125 @@ src="https://www.facebook.com/tr?id=1547479869769013&ev=PageView&noscript=1"
         </div>
     </footer>
 
-    <script>
-        document.getElementById('registrationForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
-    submitBtn.disabled = true;
-    
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData);
-    
-    try {
-        // Create order
-        const response = await fetch('/payment/create-order', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-        
-        const order = await response.json();
-        
-        if (order.error) {
-            throw new Error(order.error);
-        }
-
-        // Show different message for existing registration
-        if (order.existingUser) {
-            submitBtn.innerHTML = '<i class="fas fa-redo mr-2"></i>Completing Registration...';
-        }
-        
-        // Razorpay checkout
-        const options = {
-            key: order.key,
-            amount: order.amount,
-            currency: order.currency,
-            name: "WebinarPro",
-            description: "Webinar Registration: <%= webinar.title %>",
-            order_id: order.orderId,
-            handler: async function (response) {
-                // Verify payment
-                const verifyResponse = await fetch('/payment/verify', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        razorpay_order_id: response.razorpay_order_id,
-                        razorpay_payment_id: response.razorpay_payment_id,
-                        razorpay_signature: response.razorpay_signature
-                    })
-                });
+    <!-- Registration Popup Overlay (no close) -->
+    <div id="registrationOverlay" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 p-6">
+            <div class="text-center mb-6">
+                <div class="text-3xl font-bold text-blue-600 mb-2">Join Now</div>
+                <div class="text-gray-600">One-time payment</div>
+            </div>
+            
+            <form id="registrationForm" class="space-y-4">
+                <div>
+                    <label class="block text-gray-700 text-sm font-medium mb-2">Full Name</label>
+                    <input type="text" name="name" required 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
                 
-                const result = await verifyResponse.json();
-                if (result.success) {
-                    window.location.href = `/payment/success?payment_id=${response.razorpay_payment_id}`;
-                } else {
-                    alert('Payment verification failed. Please contact support.');
-                }
-            },
-            prefill: {
-                name: data.name,
-                email: data.email,
-                contact: data.phone
-            },
-            theme: {
-                color: "#4f46e5"
-            },
-            modal: {
-                ondismiss: function() {
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                }
-            }
-        };
+                <div>
+                    <label class="block text-gray-700 text-sm font-medium mb-2">Email Address</label>
+                    <input type="email" name="email" required 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 text-sm font-medium mb-2">Phone Number</label>
+                    <input type="tel" name="phone" required 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <input type="hidden" name="webinarId" value="<%= webinar._id %>">
+                
+                <button type="submit" class="btn-primary w-full text-lg py-4">
+                    <i class="fas fa-lock mr-2"></i>Register Securely
+                </button>
+            </form>
+            
+            <div class="mt-4 text-center text-sm text-gray-500">
+                <i class="fas fa-shield-alt mr-1"></i>Secure payment powered by Razorpay
+            </div>
+        </div>
+    </div>
+
+    <script>
+    window.addEventListener('load', () => {
+        const overlay = document.getElementById('registrationOverlay');
+        overlay.classList.remove('hidden');
+        document.body.classList.add('modal-active');
+        document.body.style.overflow = 'hidden';
+    });
+
+    // Razorpay integration
+    document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
         
-        const rzp = new Razorpay(options);
-        rzp.open();
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+        submitBtn.disabled = true;
         
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Registration failed: ' + error.message);
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-    }
-});
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData);
+        
+        try {
+            const response = await fetch('/payment/create-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            
+            const order = await response.json();
+            if (order.error) throw new Error(order.error);
+            if (order.existingUser) submitBtn.innerHTML = '<i class="fas fa-redo mr-2"></i>Completing Registration...';
+            
+            const options = {
+                key: order.key,
+                amount: order.amount,
+                currency: order.currency,
+                name: "WebinarPro",
+                description: "Webinar Registration: <%= webinar.title %>",
+                order_id: order.orderId,
+                handler: async function (response) {
+                    const verifyResponse = await fetch('/payment/verify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature
+                        })
+                    });
+                    const result = await verifyResponse.json();
+                    if (result.success) {
+                        window.location.href = `/payment/success?payment_id=${response.razorpay_payment_id}`;
+                    } else {
+                        alert('Payment verification failed. Please contact support.');
+                    }
+                },
+                prefill: {
+                    name: data.name,
+                    email: data.email,
+                    contact: data.phone
+                },
+                theme: { color: "#4f46e5" },
+                modal: {
+                    ondismiss: function() {
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                    }
+                }
+            };
+            const rzp = new Razorpay(options);
+            rzp.open();
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Registration failed: ' + error.message);
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    });
     </script>
+
 <script src="/js/script.js"></script>
 </body>
 </html>
